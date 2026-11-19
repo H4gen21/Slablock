@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SlabLock Reference</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500&family=Lexend+Deca:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #F6F4FF;
+      --card: #FFFFFF;
+      --soft: #F1ECFF;
+      --line: #E6E0F8;
+      --violet: #5F33E1;
+      --violet-soft: #EFEAFF;
+      --ink: #1B1534;
+      --ink-sec: #6E668A;
+      --ink-muted: #968EB2;
+      --emerald: #12A16B;
+      --emerald-dark: #0B6E48;
+      --emerald-soft: #E3F8EF;
+      --amber: #E58813;
+      --amber-dark: #9A5306;
+      --amber-soft: #FFF2DC;
+      --rose: #E03B52;
+      --rose-dark: #9F1C30;
+      --rose-soft: #FFE6EA;
+      --shadow: 0 10px 30px -12px rgba(60, 40, 140, 0.18);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Manrope', sans-serif;
+      font-weight: 500;
+      font-size: 15px;
+      line-height: 22px;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background:
+        radial-gradient(42% 38% at 12% 8%, rgba(221, 210, 255, 0.72), transparent 100%),
+        radial-gradient(38% 34% at 88% 14%, rgba(255, 225, 236, 0.65), transparent 100%),
+        radial-gradient(44% 40% at 82% 84%, rgba(215, 245, 234, 0.6), transparent 100%),
+        radial-gradient(40% 36% at 16% 88%, rgba(255, 240, 214, 0.6), transparent 100%);
+    }
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 20px 20px 132px;
+    }
+    h1 { font-family: 'Lexend Deca', sans-serif; font-weight: 700; font-size: 30px; line-height: 36px; }
+    h2 { font-family: 'Lexend Deca', sans-serif; font-weight: 700; font-size: 22px; line-height: 28px; }
+    h3 { font-family: 'Lexend Deca', sans-serif; font-weight: 600; font-size: 17px; line-height: 22px; }
+    .sec-title { font-family: 'Lexend Deca', sans-serif; font-weight: 600; font-size: 19px; line-height: 24px; }
+    .card {
+      background: var(--card);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+      padding: 20px;
+    }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Lexend Deca', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+      line-height: 16px;
+      padding: 5px 10px;
+      border-radius: 999px;
+    }
+    .chip.filter { padding: 8px 14px; min-height: 34px; }
+    .chip.emerald { background: var(--emerald-soft); color: var(--emerald-dark); }
+    .chip.amber { background: var(--amber-soft); color: var(--amber-dark); }
+    .chip.rose { background: var(--rose-soft); color: var(--rose-dark); }
+    .chip.violet { background: var(--violet-soft); color: var(--violet); }
+    .chip.violet.active { background: var(--violet); color: #FFF; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      min-height: 48px;
+      padding: 13px 20px;
+      border-radius: 16px;
+      font-family: 'Lexend Deca', sans-serif;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary { background: var(--violet); color: #FFF; }
+    .btn-white { background: #FFF; color: var(--violet); }
+    .btn-google {
+      width: 100%;
+      background: #FFF;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow);
+    }
+    .hero-art {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+    }
+    .slab-mock {
+      width: 210px;
+      background: #FFF;
+      border-radius: 26px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+      transform: rotate(-6deg);
+    }
+    .slab-label {
+      background: var(--violet-soft);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .slab-win {
+      height: 168px;
+      border-radius: 18px;
+      padding: 10px;
+      background: linear-gradient(135deg, #FF7A45 0%, #FFB347 55%, #5F33E1 100%);
+    }
+    .slab-win-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 12px;
+      border: 2px solid rgba(255,255,255,0.55);
+    }
+    .float-pill {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFF;
+      padding: 8px 12px;
+      border-radius: 999px;
+      box-shadow: var(--shadow);
+      font-family: 'Lexend Deca', sans-serif;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .float-pill.f1 { top: 12px; left: 4px; }
+    .float-pill.f2 { top: 128px; right: -4px; }
+    .float-pill.f3 { bottom: 14px; left: 12px; }
+    .tabbar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 74px;
+      background: rgba(238, 233, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border-radius: 24px 24px 0 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 16px;
+      z-index: 50;
+      box-shadow: var(--shadow);
+    }
+    .sub-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .sub-tile {
+      width: 48%;
+      flex-grow: 1;
+      background: var(--bg);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .rec-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+    }
+    .rec-row:first-of-type { border-top: none; }
+    .mono { font-family: 'JetBrains Mono', monospace; font-weight: 500; font-size: 13px; }
+    @media (min-width: 900px) {
+      .tabbar {
+        width: 460px;
+        height: 76px;
+        margin: 0 auto;
+        bottom: 20px;
+        border-radius: 24px;
+      }
+      .grid-2 {
+        display: flex;
+        gap: 24px;
+        align-items: flex-start;
+      }
+      .grid-2 > div { flex: 1; }
+      .detail-grid {
+        display: flex;
+        gap: 24px;
+        align-items: flex-start;
+      }
+      .detail-left { width: 340px; flex-shrink: 0; }
+      .detail-right { flex: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    let currentScreen = params.get('screen') || 'signin';
+
+    function go(scr) {
+      currentScreen = scr;
+      render();
+    }
+
+    function render() {
+      const root = document.getElementById('root');
+      if (currentScreen === 'signin') {
+        root.innerHTML = `
+          <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;position:relative;z-index:1;">
+            <div style="width:100%;max-width:400px;text-align:center;">
+              <div class="hero-art">
+                <div class="slab-mock">
+                  <div class="slab-label">
+                    <div style="text-align:left;">
+                      <div style="font-weight:600;font-size:13px;">Charizard #4</div>
+                      <div style="font-size:11px;color:var(--ink-sec);">Base Set · 1999</div>
+                    </div>
+                    <div style="font-family:'Lexend Deca';font-weight:700;font-size:22px;color:var(--violet);">10</div>
+                  </div>
+                  <div class="slab-win"><div class="slab-win-inner"></div></div>
+                </div>
+                <div class="float-pill f1"><span style="width:24px;height:24px;border-radius:8px;background:var(--emerald-soft);display:inline-flex;align-items:center;justify-content:center;color:var(--emerald);">✓</span>Sealed</div>
+                <div class="float-pill f2"><span style="width:24px;height:24px;border-radius:8px;background:var(--violet-soft);display:inline-flex;align-items:center;justify-content:center;color:var(--violet);">)))</span>Tap verified</div>
+                <div class="float-pill f3"><span style="width:24px;height:24px;border-radius:8px;background:var(--amber-soft);display:inline-flex;align-items:center;justify-content:center;color:var(--amber);">⛓</span>On-chain</div>
+              </div>
+              <h1>Know your slab is the real one</h1>
+              <p style="color:var(--ink-sec);margin:10px 0 28px;">Tap the chip in any graded card slab to check its seal, read counter, and on-chain certificate.</p>
+              <button class="btn btn-google" onclick="go('home')">Continue with Google</button>
+              <p style="font-size:13px;color:var(--ink-muted);margin-top:14px;">Demo sign-in. Nothing leaves this page.</p>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      let content = '';
+      if (currentScreen === 'home') {
+        content = `
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:44px;height:44px;border-radius:999px;background:var(--violet);color:#FFF;display:flex;align-items:center;justify-content:center;font-family:'Lexend Deca';font-weight:700;" aria-label="Open profile" onclick="go('profile')">AT</div>
+              <div>
+                <div style="font-size:13px;color:var(--ink-sec);">Hello!</div>
+                <h2>Alex</h2>
+              </div>
+            </div>
+            <button style="width:44px;height:44px;border-radius:999px;background:#FFF;border:none;box-shadow:var(--shadow);" aria-label="Notifications" onclick="go('activity')">🔔</button>
+          </div>
+          <div class="grid-2">
+            <div>
+              <div style="background:var(--violet);border-radius:24px;padding:22px;margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;color:#FFF;">
+                <div style="flex:1;">
+                  <div style="font-family:'Lexend Deca';font-weight:500;font-size:19px;line-height:26px;margin-bottom:16px;">2 of 4 slabs in your vault are sealed and verified</div>
+                  <button class="btn btn-white" onclick="go('scan')">Scan a slab</button>
+                </div>
+                <div style="width:82px;height:82px;border-radius:999px;border:7px solid rgba(255,255,255,0.28);display:flex;align-items:center;justify-content:center;font-family:'Lexend Deca';font-weight:700;font-size:17px;">50%</div>
+              </div>
+              <div style="margin-bottom:24px;">
+                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+                  <span class="sec-title">Needs attention</span>
+                  <span class="chip violet">2</span>
+                </div>
+                <div style="display:flex;gap:12px;overflow-x:auto;">
+                  <div style="width:240px;background:var(--rose-soft);border-radius:20px;padding:16px;flex-shrink:0;" onclick="go('detail-pikachu')">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:10px;"><span style="font-family:'Lexend Deca';font-weight:600;font-size:12px;color:var(--rose-dark);">Case breached</span><span>⚠</span></div>
+                    <div style="font-family:'Lexend Deca';font-weight:600;font-size:15px;">Pikachu #58</div>
+                    <div style="font-size:13px;color:var(--rose-dark);margin-top:3px;">Locked, do not buy as sealed</div>
+                    <div style="height:6px;background:rgba(27,21,52,0.08);border-radius:999px;margin-top:14px;"><div style="width:24%;height:100%;background:var(--rose);border-radius:999px;"></div></div>
+                  </div>
+                  <div style="width:240px;background:var(--amber-soft);border-radius:20px;padding:16px;flex-shrink:0;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:10px;"><span style="font-family:'Lexend Deca';font-weight:600;font-size:12px;color:var(--amber-dark);">In transit</span><span>⚠</span></div>
+                    <div style="font-family:'Lexend Deca';font-weight:600;font-size:15px;">Illustrator Promo</div>
+                    <div style="font-size:13px;color:var(--amber-dark);margin-top:3px;">Recipient tap pending</div>
+                    <div style="height:6px;background:rgba(27,21,52,0.08);border-radius:999px;margin-top:14px;"><div style="width:62%;height:100%;background:var(--amber);border-radius:999px;"></div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                <div style="display:flex;align-items:center;gap:8px;"><span class="sec-title">Your collection</span><span class="chip violet">4</span></div>
+                <span style="color:var(--violet);font-weight:600;font-size:13px;cursor:pointer;" onclick="go('collection')">See all</span>
+              </div>
+              ${renderListItems()}
+            </div>
+          </div>
+        `;
+      } else if (currentScreen === 'collection') {
+        content = `<h1 style="margin-bottom:16px;">Collection</h1>
+          <div style="display:flex;gap:10px;margin-bottom:20px;">
+            <span class="chip filter violet active">All</span>
+            <span class="chip filter violet">Sealed</span>
+            <span class="chip filter violet">In transit</span>
+            <span class="chip filter violet">Flagged</span>
+          </div>
+          ${renderListItems()}`;
+      } else if (currentScreen === 'scan' || currentScreen === 'replay') {
+        content = `
+          <div style="max-width:520px;margin:0 auto;text-align:center;padding-top:8px;">
+            <div style="width:240px;height:240px;margin:0 auto 20px;display:flex;align-items:center;justify-content:center;position:relative;">
+              <div style="position:absolute;width:228px;height:228px;border-radius:999px;border:1.5px solid rgba(95,51,225,0.14);background:rgba(95,51,225,0.04);"></div>
+              <div style="position:absolute;width:172px;height:172px;border-radius:999px;border:1.5px solid rgba(95,51,225,0.24);background:rgba(95,51,225,0.06);"></div>
+              <div style="position:absolute;width:120px;height:120px;border-radius:999px;border:1.5px solid rgba(95,51,225,0.36);background:rgba(95,51,225,0.1);"></div>
+              <div style="width:84px;height:84px;border-radius:999px;background:${currentScreen === 'replay' ? 'var(--rose)' : 'var(--violet)'};color:#FFF;display:flex;align-items:center;justify-content:center;position:relative;">)))</div>
+            </div>
+            <h2>Hold your phone near the chip</h2>
+            <p style="color:var(--ink-sec);margin:6px auto 18px;max-width:380px;">Keep the top of your phone within 4 cm of the label on the slab.</p>
+            <button class="btn btn-primary" style="width:100%;margin-bottom:18px;">Start scan</button>
+            <div class="card" style="text-align:left;">
+              <h3 style="margin-bottom:12px;">No chip nearby? Try a demo tap</h3>
+              <div style="padding:12px 14px;border-radius:16px;background:var(--bg);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;" onclick="go('detail-charizard')">
+                <div><div style="font-family:'Lexend Deca';font-weight:600;font-size:15px;">Charizard #4 (PSA 10, sealed)</div><div style="font-size:13px;color:var(--ink-sec);">Valid chip tap, counter #12</div></div>
+                <span class="chip emerald">Sealed</span>
+              </div>
+              <div style="padding:12px 14px;border-radius:16px;background:var(--bg);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;" onclick="go('detail-pikachu')">
+                <div><div style="font-family:'Lexend Deca';font-weight:600;font-size:15px;">Pikachu #58 (case breached)</div><div style="font-size:13px;color:var(--ink-sec);">Tamper loop opened, permanently locked</div></div>
+                <span class="chip rose">Case breached</span>
+              </div>
+              <div style="padding:12px 14px;border-radius:16px;background:var(--bg);display:flex;justify-content:space-between;align-items:center;" onclick="go('replay')">
+                <div><div style="font-family:'Lexend Deca';font-weight:600;font-size:15px;">Replayed URL (counter mismatch)</div><div style="font-size:13px;color:var(--ink-sec);">Stale counter 1 against recorded counter 5</div></div>
+                <span class="chip amber">Replay</span>
+              </div>
+            </div>
+          </div>
+          ${currentScreen === 'replay' ? `
+            <div style="position:fixed;inset:0;background:rgba(27,21,52,0.52);display:flex;align-items:center;justify-content:center;padding:20px;z-index:100;">
+              <div class="card" style="max-width:400px;width:100%;">
+                <div style="width:48px;height:48px;border-radius:14px;background:var(--rose-soft);display:flex;align-items:center;justify-content:center;color:var(--rose);margin-bottom:14px;">⚠</div>
+                <h2>Replay rejected</h2>
+                <p style="color:var(--ink-sec);margin-top:8px;">The chip’s read counter didn’t advance past the last verified tap, so this scan was blocked as a copied link or cloned tag.</p>
+                <div style="background:var(--rose-soft);border-radius:16px;padding:16px;margin:18px 0;text-align:center;">
+                  <div style="font-family:'Lexend Deca';font-weight:700;font-size:28px;color:var(--rose-dark);">1 ≤ 5</div>
+                  <div style="font-size:13px;color:var(--rose-dark);margin-top:4px;">Incoming counter 1 ≤ recorded counter 5</div>
+                </div>
+                <button class="btn" style="width:100%;background:var(--rose);color:#FFF;" onclick="go('scan')">Got it</button>
+              </div>
+            </div>
+          ` : ''}
+        `;
+      } else if (currentScreen === 'detail-charizard' || currentScreen === 'detail-pikachu') {
+        const isPika = currentScreen === 'detail-pikachu';
+        content = `
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+            <button style="width:44px;height:44px;border-radius:14px;background:#FFF;border:none;box-shadow:var(--shadow);" onclick="go('home')">←</button>
+            <h2>Slab details</h2>
+            <div style="width:44px;height:44px;"></div>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-left">
+              <div style="background:${isPika ? 'var(--rose-soft)' : 'var(--emerald-soft)'};border-radius:20px;padding:16px;margin-bottom:16px;display:flex;gap:12px;">
+                <div style="width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,0.72);display:flex;align-items:center;justify-content:center;">${isPika ? '⚠' : '✓'}</div>
+                <div>
+                  <div style="font-family:'Lexend Deca';font-weight:600;font-size:15px;color:${isPika ? 'var(--rose-dark)' : 'var(--emerald-dark)'};">${isPika ? 'Case breached — do not buy as sealed' : 'Sealed and verified'}</div>
+                  <div style="font-size:13px;color:${isPika ? 'var(--rose-dark)' : 'var(--emerald-dark)'};margin-top:3px;">${isPika ? 'The tamper loop was opened and this slab is permanently locked on-chain.' : 'Chip counter and signature match the on-chain record.'}</div>
+                </div>
+              </div>
+              <div class="card" style="padding:16px;margin-bottom:16px;">
+                <div style="background:var(--soft);border-radius:14px;padding:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+                  <div>
+                    <div style="font-family:'Lexend Deca';font-weight:600;font-size:15px;">${isPika ? 'Pikachu #58' : 'Charizard #4'}</div>
+                    <div style="font-size:13px;color:var(--ink-sec);">${isPika ? 'CERT-PKMN-2026-0002' : 'CERT-PKMN-2026-0001'}</div>
+                  </div>
+                  <div style="font-family:'Lexend Deca';font-weight:700;font-size:22px;color:var(--violet);">${isPika ? '9.5' : '10.0'}</div>
+                </div>
+                <div style="height:210px;border-radius:18px;padding:12px;margin-bottom:12px;background:${isPika ? 'linear-gradient(135deg,#8E96AA,#B8C0D0)' : 'linear-gradient(135deg,#FF7A45,#FFB347)'};">
+                  <div style="width:100%;height:100%;border-radius:12px;border:2px solid rgba(255,255,255,0.6);"></div>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--ink-sec);">
+                  <span>● NTAG 424 DNA chip</span>
+                  <span>${isPika ? 'Case breached' : 'Sealed'}</span>
+                </div>
+              </div>
+            </div>
+            <div class="detail-right">
+              <div class="card" style="margin-bottom:16px;">
+                <h2>${isPika ? '1st Edition Shadowless Pikachu #58' : '1st Edition Shadowless Holo Charizard #4'}</h2>
+                <div style="font-size:13px;color:var(--ink-sec);margin:2px 0 16px;">1999 Pokémon Base Set</div>
+                <div style="display:flex;align-items:center;gap:14px;margin-bottom:18px;">
+                  <div style="font-family:'Lexend Deca';font-weight:700;font-size:52px;line-height:56px;color:var(--violet);">${isPika ? '9.5' : '10.0'}</div>
+                  <div>
+                    <h3>${isPika ? 'Mint+' : 'Gem Mint'}</h3>
+                    <div style="font-size:13px;color:var(--ink-sec);">Overall grade</div>
+                  </div>
+                </div>
+                <div class="sub-grid">
+                  <div class="sub-tile"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:13px;color:var(--ink-sec);">Centering</span><span style="font-family:'Lexend Deca';font-weight:600;font-size:15px;">${isPika ? '9.5' : '10.0'}</span></div><div style="height:6px;background:var(--violet-soft);border-radius:999px;"><div style="width:${isPika ? '95%' : '100%'};height:100%;background:var(--violet);border-radius:999px;"></div></div></div>
+                  <div class="sub-tile"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:13px;color:var(--ink-sec);">Corners</span><span style="font-family:'Lexend Deca';font-weight:600;font-size:15px;">10.0</span></div><div style="height:6px;background:var(--violet-soft);border-radius:999px;"><div style="width:100%;height:100%;background:var(--violet);border-radius:999px;"></div></div></div>
+                  <div class="sub-tile"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:13px;color:var(--ink-sec);">Edges</span><span style="font-family:'Lexend Deca';font-weight:600;font-size:15px;">${isPika ? '9.0' : '10.0'}</span></div><div style="height:6px;background:var(--violet-soft);border-radius:999px;"><div style="width:${isPika ? '90%' : '100%'};height:100%;background:var(--violet);border-radius:999px;"></div></div></div>
+                  <div class="sub-tile"><div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="font-size:13px;color:var(--ink-sec);">Surface</span><span style="font-family:'Lexend Deca';font-weight:600;font-size:15px;">${isPika ? '9.5' : '10.0'}</span></div><div style="height:6px;background:var(--violet-soft);border-radius:999px;"><div style="width:${isPika ? '95%' : '100%'};height:100%;background:var(--violet);border-radius:999px;"></div></div></div>
+                </div>
+              </div>
+              <div class="card" style="margin-bottom:16px;">
+                <div class="sec-title" style="margin-bottom:14px;">Macro photos</div>
+                <div style="display:flex;gap:12px;">
+                  <div style="flex:1;background:var(--bg);border-radius:16px;overflow:hidden;">
+                    <div style="height:140px;background:linear-gradient(135deg,#FF7A45,#FFB347);"></div>
+                    <div style="padding:10px 12px;display:flex;justify-content:space-between;font-size:13px;"><span>Surface</span><span style="color:var(--ink-muted);">IPFS</span></div>
+                  </div>
+                  <div style="flex:1;background:var(--bg);border-radius:16px;overflow:hidden;">
+                    <div style="height:140px;background:${isPika ? 'linear-gradient(135deg,#FFE4E8,#FECDD3)' : 'linear-gradient(135deg,#EDE8FF,#D8CEFF)'};"></div>
+                    <div style="padding:10px 12px;display:flex;justify-content:space-between;font-size:13px;"><span>${isPika ? 'Edges, resin seam found' : 'Edges'}</span><span style="color:var(--ink-muted);">IPFS</span></div>
+                  </div>
+                </div>
+              </div>
+              <div class="card" style="margin-bottom:16px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                  <span class="sec-title">Chip and on-chain record</span>
+                  <span class="chip emerald">Valid for 2:00</span>
+                </div>
+                <div class="rec-row"><span style="color:var(--ink-sec);">Tag UID</span><span class="mono">${isPika ? '04A1B2C3D4E502' : '04A1B2C3D4E501'}</span></div>
+                <div class="rec-row"><span style="color:var(--ink-sec);">Read counter</span><span class="mono">#${isPika ? '22' : '12'}</span></div>
+                <div class="rec-row"><span style="color:var(--ink-sec);">Token ID</span><span class="mono">#${isPika ? '2' : '1'}</span></div>
+                <div class="rec-row"><span style="color:var(--ink-sec);">Certificate</span><span class="mono">${isPika ? 'CERT-PKMN-2026-0002' : 'CERT-PKMN-2026-0001'}</span></div>
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (currentScreen === 'activity') {
+        const evts = [
+          { t: 'Charizard #4 verified sealed', s: 'Counter #11 matched on-chain record', tm: '2m ago', bg: 'var(--emerald-soft)' },
+          { t: 'Pikachu #58 flagged as case breached', s: 'Tamper loop opened on tag 04A1B2C3D4E502', tm: '14m ago', bg: 'var(--rose-soft)' },
+          { t: 'Replay attempt blocked on Pikachu #58', s: 'Incoming counter 1 ≤ last counter 5', tm: '42m ago', bg: 'var(--amber-soft)' },
+          { t: 'Umbreon VMAX verified sealed', s: 'Counter #41 matched on-chain record', tm: '1h ago', bg: 'var(--emerald-soft)' },
+          { t: 'Illustrator Promo marked in transit', s: 'Waiting for recipient tap to complete transfer', tm: '3h ago', bg: 'var(--amber-soft)' }
+        ];
+        content = `<h1 style="margin-bottom:16px;">Activity</h1>` + evts.map(e => `
+          <div class="card" style="padding:14px;border-radius:20px;margin-bottom:12px;display:flex;align-items:center;gap:14px;">
+            <div style="width:44px;height:44px;border-radius:14px;background:${e.bg};display:flex;align-items:center;justify-content:center;">✓</div>
+            <div style="flex:1;"><div style="font-family:'Lexend Deca';font-weight:600;font-size:15px;">${e.t}</div><div style="font-size:13px;color:var(--ink-sec);margin-top:2px;">${e.s}</div></div>
+            <div style="font-size:13px;color:var(--ink-muted);">${e.tm}</div>
+          </div>`).join('');
+      } else if (currentScreen === 'profile') {
+        content = `<h1 style="margin-bottom:16px;">Profile</h1>
+          <div class="card" style="padding:18px;margin-bottom:16px;display:flex;align-items:center;gap:14px;">
+            <div style="width:52px;height:52px;border-radius:999px;background:var(--violet);color:#FFF;display:flex;align-items:center;justify-content:center;font-family:'Lexend Deca';font-weight:700;font-size:18px;">AT</div>
+            <div><h3>Alex Tan</h3><div style="font-size:13px;color:var(--ink-sec);margin-top:2px;">Signed in with Google as alex.tan@slablock.io</div></div>
+          </div>
+          <div class="card" style="padding:18px;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:14px;border-bottom:1px solid var(--line);">
+              <div><div style="font-size:13px;color:var(--ink-sec);">Wallet</div><div class="mono" style="margin-top:3px;">0x709979…dc79C8</div></div>
+              <span class="chip violet">Copy</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-top:14px;">
+              <div><div style="font-size:13px;color:var(--ink-sec);">Network</div><div style="font-family:'Lexend Deca';font-weight:600;font-size:15px;margin-top:3px;">Polygon Amoy testnet</div></div>
+              <span class="chip emerald">● Connected</span>
+            </div>
+          </div>
+          <div class="card" style="padding:18px;margin-bottom:24px;display:flex;justify-content:space-between;align-items:center;">
+            <div><div style="font-family:'Lexend Deca';font-weight:600;font-size:15px;">Use local API</div><div style="font-size:13px;color:var(--ink-sec);margin-top:3px;">Send scans to localhost:3000 instead of built-in demo data</div></div>
+            <div style="width:44px;height:24px;border-radius:999px;background:var(--line);"></div>
+          </div>
+          <button class="btn" style="width:100%;background:#FFF;border:1px solid var(--line);color:var(--ink);">Sign out</button>`;
+      }
+
+      root.innerHTML = `<div class="container">${content}</div>
+        <div class="tabbar">
+          <button style="background:none;border:none;cursor:pointer;" data-tab="home" onclick="go('home')">🏠</button>
+          <button style="background:none;border:none;cursor:pointer;" data-tab="collection" onclick="go('collection')">⊞</button>
+          <button style="width:62px;height:62px;border-radius:999px;background:var(--violet);border:5px solid var(--bg);margin-top:-34px;color:#FFF;cursor:pointer;" onclick="go('scan')">)))</button>
+          <button style="background:none;border:none;cursor:pointer;" data-tab="activity" onclick="go('activity')">📈</button>
+          <button style="background:none;border:none;cursor:pointer;" data-tab="profile" onclick="go('profile')">👤</button>
+        </div>`;
+    }
+
+    function renderListItems() {
+      const items = [
+        { short: 'Charizard #4', set: '1999 Pokémon Base Set', label: 'Sealed', tone: 'emerald', grade: '10.0', scr: 'detail-charizard', art: 'linear-gradient(135deg,#FF7A45,#FFB347)', ring: 'var(--violet)' },
+        { short: 'Pikachu #58', set: '1999 Pokémon Base Set', label: 'Case breached', tone: 'rose', grade: '9.5', scr: 'detail-pikachu', art: 'linear-gradient(135deg,#F59E0B,#FDE047)', ring: 'var(--rose)' },
+        { short: 'Umbreon VMAX', set: '2021 Pokémon Evolving Skies', label: 'Sealed', tone: 'emerald', grade: '10.0', scr: 'detail-charizard', art: 'linear-gradient(135deg,#5F33E1,#38BDF8)', ring: 'var(--violet)' },
+        { short: 'Illustrator Promo', set: '1998 Pokémon Japanese Promo', label: 'In transit', tone: 'amber', grade: '9.0', scr: 'detail-charizard', art: 'linear-gradient(135deg,#EC4899,#8B5CF6)', ring: 'var(--amber)' }
+      ];
+      return items.map(i => `
+        <div class="card" style="padding:14px;border-radius:20px;margin-bottom:12px;display:flex;align-items:center;gap:14px;cursor:pointer;" onclick="go('${i.scr}')">
+          <div style="width:48px;height:60px;border-radius:14px;background:${i.art};"></div>
+          <div style="flex:1;">
+            <div style="font-family:'Lexend Deca';font-weight:600;font-size:15px;">${i.short}</div>
+            <div style="font-size:13px;color:var(--ink-sec);">${i.set}</div>
+            <div style="margin-top:4px;"><span class="chip ${i.tone}">${i.label}</span></div>
+          </div>
+          <div style="width:46px;height:46px;border-radius:999px;border:4.5px solid ${i.ring};display:flex;align-items:center;justify-content:center;font-family:'Lexend Deca';font-weight:700;font-size:12px;">${i.grade}</div>
+        </div>
+      `).join('');
+    }
+
+    render();
+  </script>
+</body>
+</html>

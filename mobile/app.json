@@ -1,0 +1,24 @@
+{
+  "expo": {
+    "name": "SlabLock",
+    "slug": "slablock-mobile",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "io.slablock.mobile",
+      "infoPlist": {
+        "NFCReaderUsageDescription": "SlabLock uses NFC to read dynamic cryptographic attestations from NTAG 424 DNA tags."
+      }
+    },
+    "android": {
+      "package": "io.slablock.mobile",
+      "permissions": ["android.permission.NFC"]
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": ["react-native-nfc-manager"]
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "name": "slablock-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix mobile run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "dev:mobile": "npm --prefix mobile run dev",
+    "compare": "npm --prefix mobile run compare"
+  }
+}

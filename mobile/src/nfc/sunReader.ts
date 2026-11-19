@@ -1,0 +1,122 @@
+import { Platform } from 'react-native';
+
+export interface ParsedSunUrl {
+  piccData: string;
+  cmac: string;
+  rawUrl?: string;
+}
+
+/**
+ * Extracts `picc_data` (or `piccData` / `e`) and `cmac` (or `c`) query parameters
+ * from an NXP NTAG 424 DNA Dynamic SUN NDEF URI record.
+ */
+export function parseSunNdefUrl(ndefUrl: string): ParsedSunUrl {
+  const queryStart = ndefUrl.indexOf('?');
+  if (queryStart === -1) {
+    throw new Error('NDEF URL does not contain dynamic SUN query parameters.');
+  }
+
+  const queryString = ndefUrl.slice(queryStart + 1);
+  const params = new URLSearchParams(queryString);
+
+  const piccData =
+    params.get('picc_data') || params.get('piccData') || params.get('e') || '';
+  const cmac = params.get('cmac') || params.get('c') || '';
+
+  if (!piccData || !cmac) {
+    throw new Error('Missing picc_data or cmac in NTAG 424 DNA SUN URL.');
+  }
+
+  return {
+    piccData: piccData.toUpperCase(),
+    cmac: cmac.toUpperCase(),
+    rawUrl: ndefUrl
+  };
+}
+
+/**
+ * Initiates a physical ISO 14443-4 / NDEF NFC scan using react-native-nfc-manager
+ * and parses the dynamic NTAG 424 DNA SUN URL.
+ * Guarded by Platform.OS === 'web' so web bundling and desktop browser execution never crash.
+ */
+export async function scanPhysicalNtag424(): Promise<ParsedSunUrl> {
+  if (Platform.OS === 'web') {
+    throw new Error(
+      'Web Browser Mode detected: Physical NFC ISO-14443-4 hardware is unavailable in desktop browsers. Use the Dev Demo Mode buttons below to simulate NTAG 424 DNA taps.'
+    );
+  }
+
+  // Lazy-require native module only on iOS / Android
+  // eslint-disable-next-line @typescript-eslint/no-var-requires
+  const nfcModule = require('react-native-nfc-manager');
+  const NfcManager = nfcModule.default ?? nfcModule;
+  const { NfcTech, Ndef } = nfcModule;
+
+  const isSupported = await NfcManager.isSupported();
+  if (!isSupported) {
+    throw new Error('NFC hardware is not supported on this device. Use Dev Demo Mode.');
+  }
+
+  await NfcManager.start();
+
+  try {
+    await NfcManager.requestTechnology(NfcTech.Ndef, {
+      alertMessage: 'Hold the top of your phone within 4cm of the SlabLock holographic label.'
+    });
+
+    const tag = await NfcManager.getTag();
+    const ndefRecords = tag?.ndefMessage;
+    if (!ndefRecords || ndefRecords.length === 0) {
+      throw new Error('No NDEF records found on physical tag.');
+    }
+
+    const payloadBytes = Uint8Array.from(ndefRecords[0].payload);
+    const uri = Ndef.uri.decodePayload(payloadBytes);
+    return parseSunNdefUrl(uri);
+  } finally {
+    await NfcManager.cancelTechnologyRequest().catch(() => undefined);
+  }
+}
+
+let charizardSimCounter = 10;
+let pikachuSimCounter = 20;
+
+/**
+ * Generates simulated SUN payloads for the 3 Dev Demo Mode quick-trigger scenarios.
+ */
+export function buildDemoTapPayload(
+  scenario: 'VALID_CHARIZARD_SEALED' | 'VALID_PIKACHU_SEALED' | 'REPLAY_ATTACK'
+): ParsedSunUrl {
+  switch (scenario) {
+    case 'VALID_CHARIZARD_SEALED': {
+      charizardSimCounter += 1;
+      const piccData = `SIM:04A1B2C3D4E501:${charizardSimCounter}`;
+      const cmac = '8E54A92B1C77F43D';
+      return {
+        piccData,
+        cmac,
+        rawUrl: `https://verify.slablock.io/tap?picc_data=${piccData}&cmac=${cmac}`
+      };
+    }
+    case 'VALID_PIKACHU_SEALED': {
+      pikachuSimCounter += 1;
+      const piccData = `SIM:04A1B2C3D4E502:${pikachuSimCounter}`;
+      const cmac = 'F4A1903BC8271E09';
+      return {
+        piccData,
+        cmac,
+        rawUrl: `https://verify.slablock.io/tap?picc_data=${piccData}&cmac=${cmac}`
+      };
+    }
+    case 'REPLAY_ATTACK': {
+      // Counter 1 is <= last authenticated counter on tag 04A1B2C3D4E502 (lastCounter >= 5)
+      const piccData = 'SIM:04A1B2C3D4E502:1';
+      const cmac = '8E54A92B1C77F43D';
+      return {
+        piccData,
+        cmac,
+        rawUrl: `https://verify.slablock.io/tap?picc_data=${piccData}&cmac=${cmac}`
+      };
+    }
+  }
+}

@@ -1,0 +1,40 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+cache/
+.expo/
+web-build/
+
+# Secrets - never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+broadcast/
+deployments/*.local.json
+
+# Foundry
+contracts/out/
+contracts/cache/
+
+# Generated screenshots from the UI comparison tool
+mobile/compare/
+
+# Native build artifacts
+mobile/android/
+mobile/ios/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log
+coverage/
+
+# Foundry deps are installed by 'forge install' (see CI)
+contracts/lib/
