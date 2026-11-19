@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import type { OnChainItemState } from '../abi/SlabRegistry';
+import type { GradeReport } from '../types/report';
 
 export interface VerifiedCertificateData {
   verified: boolean;
@@ -18,6 +19,8 @@ export interface VerifiedCertificateData {
     edges: number;
   };
   ipfsMetadataCid: string;
+  /** Grade report details. Will come from the IPFS metadata later. */
+  report?: GradeReport;
   onChainState: OnChainItemState;
   ownerAddress?: string;
   issuerAddress?: string;

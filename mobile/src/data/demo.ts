@@ -2,8 +2,13 @@ import type { VerifiedCertificateData } from '../components/CertificateInspectio
 import type { DemoTriggerScenario } from '../components/DevDemoBottomSheet';
 import { buildDemoTapPayload, type ParsedSunUrl } from '../nfc/sunReader';
 import type { Tone } from '../theme/tokens';
-
-export type SubGradeKey = 'centering' | 'surface' | 'corners' | 'edges';
+import type {
+  CornerScore,
+  EdgeScore,
+  GradeReport,
+  Region,
+  Side
+} from '../types/report';
 
 export interface SlabItem extends VerifiedCertificateData {
   key: string;
@@ -14,14 +19,137 @@ export interface SlabItem extends VerifiedCertificateData {
   gradedAt: string;
   /** Banner body on the detail screen. Describes the current state only. */
   stateNote?: string;
-  /**
-   * Short imperfection callouts for sub-grades below 10.0. A perfect
-   * sub-grade has no entry (null), so nothing is drawn for it.
-   */
-  imperfections?: Partial<Record<SubGradeKey, string | null>>;
+  /** Print variation shown on the report, e.g. "Shadowless · Holo". */
+  variation?: string;
   /** Seeded by the demo flag rather than scanned by the user. */
   demo?: boolean;
 }
+
+const CORNER_REGIONS: Region[] = ['TOP_LEFT', 'TOP_RIGHT', 'BOTTOM_LEFT', 'BOTTOM_RIGHT'];
+const EDGE_REGIONS: Region[] = ['TOP', 'BOTTOM', 'LEFT', 'RIGHT'];
+const SIDES: Side[] = ['FRONT', 'BACK'];
+
+/** All 8 corners at 1000, with the given ones replaced. Front corners carry an angle. */
+function corners(overrides: CornerScore[] = []): CornerScore[] {
+  return SIDES.flatMap((side) =>
+    CORNER_REGIONS.map(
+      (region) =>
+        overrides.find((o) => o.side === side && o.region === region) ?? {
+          side,
+          region,
+          fray: 1000,
+          fill: 1000,
+          ...(side === 'FRONT' ? { angle: 1000 } : {})
+        }
+    )
+  );
+}
+
+/** All 8 edges at 1000, with the given ones replaced. */
+function edges(overrides: EdgeScore[] = []): EdgeScore[] {
+  return SIDES.flatMap((side) =>
+    EDGE_REGIONS.map(
+      (region) =>
+        overrides.find((o) => o.side === side && o.region === region) ?? {
+          side,
+          region,
+          fray: 1000,
+          fill: 1000
+        }
+    )
+  );
+}
+
+const CARD_DIMENSIONS = { h: 3.459, w: 2.48 };
+
+const CHARIZARD_REPORT: GradeReport = {
+  gradedAt: '2026-11-14T03:20:00Z',
+  centering: {
+    front: { l: 52, r: 48, t: 51, b: 49 },
+    back: { l: 49, r: 51, t: 51, b: 49 }
+  },
+  dimensionsIn: CARD_DIMENSIONS,
+  dings: [],
+  corners: corners(),
+  edges: edges(),
+  stats: { pop: 3, popAsOf: '2026-11-19', rank: 1, rankOf: 3, chron: 2, chronOf: 3 }
+};
+
+const PIKACHU_REPORT: GradeReport = {
+  gradedAt: '2026-11-12T07:45:00Z',
+  centering: {
+    front: { l: 55, r: 45, t: 52, b: 48 },
+    back: { l: 49, r: 51, t: 51, b: 49 }
+  },
+  dimensionsIn: CARD_DIMENSIONS,
+  dings: [
+    {
+      id: 'D1',
+      side: 'FRONT',
+      type: 'EDGE',
+      region: 'BOTTOM',
+      note: 'Minor whitening, bottom edge'
+    },
+    {
+      id: 'D2',
+      side: 'BACK',
+      type: 'CORNER',
+      region: 'TOP_LEFT',
+      note: 'Soft corner, top left'
+    }
+  ],
+  corners: corners([{ side: 'BACK', region: 'TOP_LEFT', fray: 972, fill: 988 }]),
+  edges: edges([{ side: 'FRONT', region: 'BOTTOM', fray: 981, fill: 994 }]),
+  stats: { pop: 113, popAsOf: '2026-11-19', rank: 3, rankOf: 113, chron: 68, chronOf: 113 }
+};
+
+const UMBREON_REPORT: GradeReport = {
+  gradedAt: '2026-11-03T09:10:00Z',
+  centering: {
+    front: { l: 51, r: 49, t: 51, b: 49 },
+    back: { l: 51, r: 49, t: 51, b: 49 }
+  },
+  dimensionsIn: CARD_DIMENSIONS,
+  dings: [],
+  corners: corners(),
+  edges: edges(),
+  stats: { pop: 41, popAsOf: '2026-11-19', rank: 7, rankOf: 41, chron: 12, chronOf: 41 }
+};
+
+const ILLUSTRATOR_REPORT: GradeReport = {
+  gradedAt: '2026-10-28T02:30:00Z',
+  centering: {
+    front: { l: 54, r: 46, t: 60, b: 40 },
+    back: { l: 52, r: 48, t: 53, b: 47 }
+  },
+  dimensionsIn: { h: 3.457, w: 2.481 },
+  dings: [
+    {
+      id: 'D1',
+      side: 'FRONT',
+      type: 'SURFACE',
+      region: 'TOP_RIGHT',
+      note: 'Small indent near the art box'
+    },
+    {
+      id: 'D2',
+      side: 'FRONT',
+      type: 'EDGE',
+      region: 'RIGHT',
+      note: 'Edge chipping along the right side'
+    },
+    {
+      id: 'D3',
+      side: 'BACK',
+      type: 'CORNER',
+      region: 'BOTTOM_RIGHT',
+      note: 'Light wear, bottom right corner'
+    }
+  ],
+  corners: corners([{ side: 'BACK', region: 'BOTTOM_RIGHT', fray: 961, fill: 975 }]),
+  edges: edges([{ side: 'FRONT', region: 'RIGHT', fray: 958, fill: 970 }]),
+  stats: { pop: 1, popAsOf: '2026-11-19', rank: 1, rankOf: 1, chron: 1, chronOf: 1 }
+};
 
 export interface ActivityEvent {
   id: string;
@@ -84,7 +212,8 @@ export const SLABS: SlabItem[] = [
       corners: 10.0,
       edges: 10.0
     },
-    imperfections: {},
+    variation: 'Shadowless · Holo',
+    report: CHARIZARD_REPORT,
     ipfsMetadataCid: 'QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco',
     onChainState: 'SEALED',
     ownerAddress: DEMO_WALLET_ADDRESS,
@@ -110,16 +239,12 @@ export const SLABS: SlabItem[] = [
     overallGrade: 9.5,
     subGrades: {
       centering: 9.5,
-      surface: 9.5,
-      corners: 10.0,
-      edges: 9.0
+      surface: 10.0,
+      corners: 9.5,
+      edges: 9.5
     },
-    imperfections: {
-      centering: 'Slightly off-center left to right, about 55/45',
-      surface: 'Faint print line across the holo window',
-      corners: null,
-      edges: 'Minor edge whitening at bottom-left'
-    },
+    variation: 'Shadowless',
+    report: PIKACHU_REPORT,
     ipfsMetadataCid: 'QmZtmD2qtQgVPekm8a6ZububQ5D63Gzh9WAK7WeqBmyxyg',
     onChainState: 'SEALED',
     ownerAddress: DEMO_WALLET_ADDRESS,
@@ -145,13 +270,12 @@ export const SLABS: SlabItem[] = [
     overallGrade: 10.0,
     subGrades: {
       centering: 10.0,
-      surface: 9.5,
+      surface: 10.0,
       corners: 10.0,
       edges: 10.0
     },
-    imperfections: {
-      surface: 'Light surface scratch near the top-right corner'
-    },
+    variation: 'Alternate Art',
+    report: UMBREON_REPORT,
     ipfsMetadataCid: 'QmXoypizjW3WknFiJnKLwHCnL72vedxjQkDDP1mXWo6uco',
     onChainState: 'SEALED',
     ownerAddress: DEMO_WALLET_ADDRESS,
@@ -181,12 +305,7 @@ export const SLABS: SlabItem[] = [
       corners: 9.0,
       edges: 9.0
     },
-    imperfections: {
-      centering: 'Top border noticeably wider than the bottom',
-      surface: 'Small indent below the illustration box',
-      corners: 'Light wear on the top-left and bottom-right corners',
-      edges: 'Edge chipping along the right side'
-    },
+    report: ILLUSTRATOR_REPORT,
     ipfsMetadataCid: 'QmPZ9gcCEpqKTo6aq61g2nXGUhM4iCL3ewB6LDXZCtioEB',
     onChainState: 'IN_TRANSIT',
     ownerAddress: DEMO_WALLET_ADDRESS,
